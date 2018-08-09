@@ -46,7 +46,7 @@ _NUM_VALIDATION = 350
 _RANDOM_SEED = 0
 
 # The number of shards per dataset split.
-_NUM_SHARDS = 5
+_NUM_SHARDS = 10
 
 
 class ImageReader(object):
@@ -99,7 +99,7 @@ def _get_filenames_and_classes(dataset_dir):
 
 
 def _get_dataset_filename(dataset_dir, split_name, shard_id):
-    output_filename = 'flowers_%s_%05d-of-%05d.tfrecord' % (
+    output_filename = 'sku265_%s_%05d-of-%05d.tfrecord' % (
         split_name, shard_id, _NUM_SHARDS)
     return os.path.join(dataset_dir, output_filename)
 
@@ -113,7 +113,7 @@ def _convert_dataset(split_name, filenames, class_ids, dataset_dir):
       class_ids: A llst of class ids(integer) coorespond to filenames.
       dataset_dir: The directory where the converted datasets are stored.
     """
-    assert split_name in ['train', 'validation']
+    assert split_name in ['train', 'validation', 'test']
 
     num_per_shard = int(math.ceil(len(filenames) / float(_NUM_SHARDS)))
 
@@ -213,13 +213,13 @@ def run(dataset_dir, label_file_train, label_file_val, label_file_test, image_sr
     assert(not set(train_class_set).difference(val_class_set))
     assert(not set(train_class_set).difference(test_class_set))
 
-    train_class_ids = map(int, train_class_names)
-    val_class_ids = map(int, train_class_names)
-    test_class_ids = map(int, train_class_names)
+    train_class_ids = list(map(int, train_class_names))
+    val_class_ids = list(map(int, train_class_names))
+    test_class_ids = list(map(int, train_class_names))
 
     # Divide into train and test:
     random.seed(_RANDOM_SEED)
-    inds = range(len(train_filenames))
+    inds = [x for x in range(len(train_filenames))]
     random.shuffle(inds)
     train_filenames = [train_filenames[i] for i in inds]
     train_class_ids = [train_class_ids[i] for i in inds]
@@ -240,8 +240,6 @@ def run(dataset_dir, label_file_train, label_file_val, label_file_test, image_sr
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        func = getattr(sys.modules[__name__], sys.argv[1])
-        func(*sys.argv[2:])
-    else:
-        print(sys.argv[0] + 'cmd [cmd_args]')
+    dst_dir = 'temp'
+    label_file = 'imglbl_list'
+    run(dst_dir, label_file + '.train', label_file + '.val', label_file + '.test', 'image_data')
