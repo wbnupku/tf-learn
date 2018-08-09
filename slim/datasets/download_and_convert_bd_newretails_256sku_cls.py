@@ -240,4 +240,8 @@ def run(dataset_dir, label_file_train, label_file_val, label_file_test, image_sr
 
 
 if __name__ == '__main__':
-    run()
+    if len(sys.argv) > 1:
+        func = getattr(sys.modules[__name__], sys.argv[1])
+        func(*sys.argv[2:])
+    else:
+        print(sys.argv[0] + 'cmd [cmd_args]')
